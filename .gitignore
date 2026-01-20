@@ -1,5 +1,38 @@
+# Build results
 bin/
 obj/
+publish/
+*.zip
+
+# NuGet
 /packages/
+*.nupkg
+*.snupkg
+
+# Visual Studio / Rider
+.vs/
+.vscode/
+.idea/
 riderModule.iml
 /_ReSharper.Caches/
+*.suo
+*.user
+*.userosbjdebug.cache
+.DS_Store
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.sln.docstates
+
+# Test files (keep sample data but not actual game data)
+*.dat
+*.tpk
+!classdata.tpk
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~

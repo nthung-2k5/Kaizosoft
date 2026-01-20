@@ -1,4 +1,6 @@
-﻿# Kaizosoft
+﻿﻿# Kaizosoft
+
+[![Build and Release](https://github.com/YOUR_USERNAME/Kaizosoft/actions/workflows/release.yml/badge.svg)](https://github.com/YOUR_USERNAME/Kaizosoft/actions/workflows/release.yml)
 
 A command-line tool for extracting and importing language files from Kairosoft games built with Unity. This tool allows you to create translation files and modify game assets with custom translations.
 
@@ -18,6 +20,16 @@ A command-line tool for extracting and importing language files from Kairosoft g
 
 ## Installation
 
+### Download Pre-built Release
+
+Download the latest release for your platform from the [Releases page](https://github.com/YOUR_USERNAME/Kaizosoft/releases):
+
+- **Windows**: `Kaizosoft-win-x64.zip`
+- **Linux**: `Kaizosoft-linux-x64.zip`
+- **macOS**: `Kaizosoft-osx-x64.zip`
+
+Extract the archive and ensure `keys.csv` and `classdata.tpk` are in the same directory as the executable.
+
 ### Building from Source
 
 1. Clone or download the repository
@@ -30,10 +42,19 @@ A command-line tool for extracting and importing language files from Kairosoft g
 
 ### Publishing
 
-To create a standalone executable:
+To create a standalone single-file executable:
 ```powershell
+# Windows
 dotnet publish -c Release -r win-x64 --self-contained
+
+# Linux
+dotnet publish -c Release -r linux-x64 --self-contained
+
+# macOS
+dotnet publish -c Release -r osx-x64 --self-contained
 ```
+
+The executable will be in `bin/Release/net10.0/<runtime>/publish/`
 
 ## Configuration
 
@@ -197,6 +218,17 @@ Contributions are welcome! Areas for improvement:
 - Improve error handling and validation
 - Create a GUI interface
 - Add language file validation
+
+### Creating Releases
+
+The project uses GitHub Actions to automatically build and release executables:
+
+1. Update the version in `Kaizosoft.csproj`
+2. Commit changes and create a tag: `git tag v1.0.0`
+3. Push the tag: `git push origin v1.0.0`
+4. GitHub Actions will automatically build and create the release
+
+See [RELEASE.md](RELEASE.md) for detailed instructions.
 
 ## Credits
 
