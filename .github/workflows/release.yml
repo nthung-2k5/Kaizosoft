@@ -8,11 +8,17 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
-    
     strategy:
       matrix:
-        runtime: [win-x64, linux-x64, osx-x64]
+        include:
+          - runtime: win-x64
+            os: windows-latest
+          - runtime: linux-x64
+            os: ubuntu-latest
+          - runtime: osx-x64
+            os: macos-latest
+    
+    runs-on: ${{ matrix.os }}
     
     steps:
     - name: Checkout code
@@ -28,29 +34,36 @@ jobs:
     
     - name: Publish ${{ matrix.runtime }}
       run: |
-        dotnet publish -c Release -r ${{ matrix.runtime }} `
-          --self-contained true `
-          -p:PublishSingleFile=true `
-          -p:PublishTrimmed=true `
-          -p:IncludeNativeLibrariesForSelfExtract=true `
-          -p:DebugType=None `
-          -p:DebugSymbols=false `
+        dotnet publish -c Release -r ${{ matrix.runtime }} \
+          --self-contained true \
+          -p:PublishSingleFile=true \
+          -p:PublishTrimmed=true \
+          -p:IncludeNativeLibrariesForSelfExtract=true \
+          -p:DebugType=None \
+          -p:DebugSymbols=false \
           -o ./publish/${{ matrix.runtime }}
     
-    - name: Copy required files to output
+    - name: Copy required files to output (Windows)
+      if: matrix.os == 'windows-latest'
       run: |
         Copy-Item keys.csv ./publish/${{ matrix.runtime }}/
         Copy-Item classdata.tpk ./publish/${{ matrix.runtime }}/
     
+    - name: Copy required files to output (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cp keys.csv ./publish/${{ matrix.runtime }}/
+        cp classdata.tpk ./publish/${{ matrix.runtime }}/
+    
     - name: Create archive (Windows)
-      if: matrix.runtime == 'win-x64'
+      if: matrix.os == 'windows-latest'
       run: |
         Compress-Archive -Path ./publish/${{ matrix.runtime }}/* -DestinationPath Kaizosoft-${{ matrix.runtime }}.zip
     
     - name: Create archive (Linux/macOS)
-      if: matrix.runtime != 'win-x64'
+      if: matrix.os != 'windows-latest'
       run: |
-        Compress-Archive -Path ./publish/${{ matrix.runtime }}/* -DestinationPath Kaizosoft-${{ matrix.runtime }}.zip
+        cd ./publish/${{ matrix.runtime }} && zip -r ../../Kaizosoft-${{ matrix.runtime }}.zip * && cd ../..
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
