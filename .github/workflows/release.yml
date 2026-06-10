@@ -70,7 +70,7 @@ jobs:
         dest = './publish/${{ matrix.runtime }}'
         shutil.copy('keys.csv', dest)
         
-        with zipfile.ZipFile(io.BytesIO(zip_data)) as z:
+        with zipfile.ZipFile('classdata.zip') as z:
           with z.open('uncompressed.tpk') as source, open(os.path.join(dest, 'classdata.tpk'), 'wb') as target:
               shutil.copyfileobj(source, target)
         
