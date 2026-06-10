@@ -60,34 +60,34 @@ jobs:
         dotnet publish -c Release -r ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o ./publish/${{ matrix.runtime }}
 
     - name: Copy required files to output
-        shell: python
-        run: |
-          import os
-          import shutil
-          import zipfile
-          import io
-          
-          dest = './publish/${{ matrix.runtime }}'
-          shutil.copy('keys.csv', dest)
-          
-          with zipfile.ZipFile(io.BytesIO(zip_data)) as z:
-            with z.open('uncompressed.tpk') as source, open(os.path.join(dest, 'classdata.tpk'), 'wb') as target:
-                shutil.copyfileobj(source, target)
-          
-          for item in os.listdir('native'):
-            s = os.path.join('native', item)
-            d = os.path.join(dest, item)
-            if os.path.isdir(s):
-              shutil.copytree(s, d, dirs_exist_ok=True)
-            else:
-              shutil.copy2(s, d)
-          
+      shell: python
+      run: |
+        import os
+        import shutil
+        import zipfile
+        import io
+        
+        dest = './publish/${{ matrix.runtime }}'
+        shutil.copy('keys.csv', dest)
+        
+        with zipfile.ZipFile(io.BytesIO(zip_data)) as z:
+          with z.open('uncompressed.tpk') as source, open(os.path.join(dest, 'classdata.tpk'), 'wb') as target:
+              shutil.copyfileobj(source, target)
+        
+        for item in os.listdir('native'):
+          s = os.path.join('native', item)
+          d = os.path.join(dest, item)
+          if os.path.isdir(s):
+            shutil.copytree(s, d, dirs_exist_ok=True)
+          else:
+            shutil.copy2(s, d)
+        
     - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: Kaizosoft-${{ matrix.runtime }}
-          path: ./publish/${{ matrix.runtime }}
-          compression-level: 9
+      uses: actions/upload-artifact@v4
+      with:
+        name: Kaizosoft-${{ matrix.runtime }}
+        path: ./publish/${{ matrix.runtime }}
+        compression-level: 9
   
   release:
     needs: build
