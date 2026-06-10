@@ -16,7 +16,7 @@ jobs:
       matrix:
         include:
           - runtime: win-x64
-            os: windows-latest
+            os: windows-2025-vs2026
           - runtime: linux-x64
             os: ubuntu-latest
           - runtime: osx-x64
@@ -32,13 +32,6 @@ jobs:
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '10.0.x'
-
-    - name: Setup GraalVM
-      uses: graalvm/setup-graalvm@v1
-      with:
-        java-version: '25'
-        distribution: 'graalvm'
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Cache Native Images
       id: cache-native-images
@@ -47,6 +40,14 @@ jobs:
         path: native
         key: native-image-${{ runner.os }}-apktool-${{ env.APKTOOL_VERSION }}-apksigner-${{ env.APKSIGNER_VERSION }}
 
+    - name: Setup GraalVM
+      if: steps.cache-native-images.outputs.cache-hit != 'true'
+      uses: graalvm/setup-graalvm@v1
+      with:
+        java-version: '25'
+        distribution: 'graalvm'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Download Apktool and Uber-APK-Signer
       if: steps.cache-native-images.outputs.cache-hit != 'true'
       shell: bash
