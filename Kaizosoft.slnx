@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Kaizosoft.Console/Kaizosoft.Console.csproj" />
+  <Project Path="Kaizosoft.Core/Kaizosoft.Core.csproj" />
+</Solution>

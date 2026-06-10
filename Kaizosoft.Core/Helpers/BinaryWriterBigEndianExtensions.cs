@@ -1,7 +1,10 @@
 ﻿using System.Buffers.Binary;
 
-namespace Kaizosoft;
+namespace Kaizosoft.Core.Helpers;
 
+/// <summary>
+/// Extension methods for BinaryWriter to support big-endian writing operations.
+/// </summary>
 public static class BinaryWriterBigEndianExtensions
 {
     extension(BinaryWriter writer)

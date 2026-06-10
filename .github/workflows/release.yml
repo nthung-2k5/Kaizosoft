@@ -22,52 +22,77 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '10.0.x'
-    
+
+    - name: Setup GraalVM
+      uses: graalvm/setup-graalvm@v1
+      with:
+        java-version: '25'
+        distribution: 'graalvm'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Download Apktool and Uber-APK-Signer
+      shell: bash
+      run: |
+        mkdir -p native
+        curl -L -o apktool.jar https://github.com/iBotPeaches/Apktool/releases/download/v3.0.2/apktool_3.0.2.jar
+        curl -L -o apksigner.jar https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar
+
+    - name: Build Native Images
+      run: |
+        native-image -jar apktool.jar native/apktool
+        native-image -jar apksigner.jar native/apksigner
+        
+    - name: Download Unity classdata
+      shell: bash
+      run: curl -L -o classdata.zip https://nightly.link/AssetRipper/Tpk/workflows/type_tree_tpk/master/uncompressed_file.zip
+        
     - name: Restore dependencies
       run: dotnet restore
-    
+
     - name: Publish ${{ matrix.runtime }}
       run: |
         dotnet publish -c Release -r ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o ./publish/${{ matrix.runtime }}
-    
-    - name: Copy required files to output (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        Copy-Item keys.csv ./publish/${{ matrix.runtime }}/
-        Copy-Item classdata.tpk ./publish/${{ matrix.runtime }}/
-    
-    - name: Copy required files to output (Linux/macOS)
-      if: matrix.os != 'windows-latest'
-      run: |
-        cp keys.csv ./publish/${{ matrix.runtime }}/
-        cp classdata.tpk ./publish/${{ matrix.runtime }}/
-    
-    - name: Create archive (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        Compress-Archive -Path ./publish/${{ matrix.runtime }}/* -DestinationPath Kaizosoft-${{ matrix.runtime }}.zip
-    
-    - name: Create archive (Linux/macOS)
-      if: matrix.os != 'windows-latest'
-      run: |
-        cd ./publish/${{ matrix.runtime }} && zip -r ../../Kaizosoft-${{ matrix.runtime }}.zip * && cd ../..
-    
+
+    - name: Copy required files to output
+        shell: python
+        run: |
+          import os
+          import shutil
+          import zipfile
+          import io
+          
+          dest = './publish/${{ matrix.runtime }}'
+          shutil.copy('keys.csv', dest)
+          
+          with zipfile.ZipFile(io.BytesIO(zip_data)) as z:
+            with z.open('uncompressed.tpk') as source, open(os.path.join(dest, 'classdata.tpk'), 'wb') as target:
+                shutil.copyfileobj(source, target)
+          
+          for item in os.listdir('native'):
+            s = os.path.join('native', item)
+            d = os.path.join(dest, item)
+            if os.path.isdir(s):
+              shutil.copytree(s, d, dirs_exist_ok=True)
+            else:
+              shutil.copy2(s, d)
+          
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: Kaizosoft-${{ matrix.runtime }}
-        path: Kaizosoft-${{ matrix.runtime }}.zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kaizosoft-${{ matrix.runtime }}
+          path: ./publish/${{ matrix.runtime }}
+          compression-level: 9
   
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     
     permissions:
       contents: write
@@ -77,6 +102,17 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: artifacts
+
+    - name: Zip artifacts for Release
+      shell: python
+      run: |
+        import os
+        import shutil
+        
+        for item in os.listdir('artifacts'):
+            dir_path = os.path.join('artifacts', item)
+            if os.path.isdir(dir_path):
+                shutil.make_archive(dir_path, 'zip', dir_path)
     
     - name: Create Release
       uses: softprops/action-gh-release@v1

@@ -1,6 +1,6 @@
-﻿﻿# Kaizosoft
+﻿# Kaizosoft
 
-[![Build and Release](https://github.com/YOUR_USERNAME/Kaizosoft/actions/workflows/release.yml/badge.svg)](https://github.com/YOUR_USERNAME/Kaizosoft/actions/workflows/release.yml)
+[![Build and Release](https://github.com/nthung-2k5/Kaizosoft/actions/workflows/release.yml/badge.svg)](https://github.com/nthung-2k5/Kaizosoft/actions/workflows/release.yml)
 
 A command-line tool for extracting and importing language files from Kairosoft games built with Unity. This tool allows you to create translation files and modify game assets with custom translations.
 
@@ -16,7 +16,6 @@ A command-line tool for extracting and importing language files from Kairosoft g
 - .NET 10.0 or higher
 - A supported Kairosoft game installed
 - `keys.csv` file with game encryption keys
-- `classdata.tpk` file for Unity asset parsing
 
 ## Installation
 
@@ -28,7 +27,7 @@ Download the latest release for your platform from the [Releases page](https://g
 - **Linux**: `Kaizosoft-linux-x64.zip`
 - **macOS**: `Kaizosoft-osx-x64.zip`
 
-Extract the archive and ensure `keys.csv` and `classdata.tpk` are in the same directory as the executable.
+Extract the archive and ensure `keys.csv` is in the same directory as the executable.
 
 ### Building from Source
 
@@ -70,7 +69,6 @@ Dungeon Village,ダンジョンビレッジ,1234567890ABCDEF...
 ### Required Files
 
 Place these files in the same directory as the executable:
-- `classdata.tpk` - Unity class database
 - `keys.csv` - Game encryption keys
 
 ## Usage
@@ -195,9 +193,6 @@ Games are supported if their encryption keys are present in `keys.csv`. Common K
 ### "Game name not found in keys.csv"
 Make sure the game name in the assets matches an entry in your `keys.csv` file.
 
-### "classdata.tpk not found"
-Ensure `classdata.tpk` is in the same directory as the executable.
-
 ### File Access Errors
 - Make sure the game is not running when importing modified assets
 - Run with administrator privileges if necessary
@@ -223,12 +218,9 @@ Contributions are welcome! Areas for improvement:
 
 The project uses GitHub Actions to automatically build and release executables:
 
-1. Update the version in `Kaizosoft.csproj`
-2. Commit changes and create a tag: `git tag v1.0.0`
-3. Push the tag: `git push origin v1.0.0`
-4. GitHub Actions will automatically build and create the release
-
-See [RELEASE.md](RELEASE.md) for detailed instructions.
+1. Commit changes and create a tag: `git tag v1.0.0`
+2. Push the tag: `git push origin v1.0.0`
+3. GitHub Actions will automatically build and create the release
 
 ## Credits
 
