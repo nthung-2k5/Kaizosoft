@@ -6,6 +6,10 @@ on:
       - 'v*'
   workflow_dispatch:
 
+env:
+  APKTOOL_VERSION: '3.0.2'
+  APKSIGNER_VERSION: '1.3.0'
+
 jobs:
   build:
     strategy:
@@ -36,14 +40,24 @@ jobs:
         distribution: 'graalvm'
         github-token: ${{ secrets.GITHUB_TOKEN }}
         
+    - name: Cache Native Images
+      id: cache-native-images
+      uses: actions/cache@v4
+      with:
+        path: native
+        key: native-image-${{ runner.os }}-apktool-${{ env.APKTOOL_VERSION }}-apksigner-${{ env.APKSIGNER_VERSION }}
+
     - name: Download Apktool and Uber-APK-Signer
+      if: steps.cache-native-images.outputs.cache-hit != 'true'
       shell: bash
       run: |
         mkdir -p native
-        curl -L -o apktool.jar https://github.com/iBotPeaches/Apktool/releases/download/v3.0.2/apktool_3.0.2.jar
-        curl -L -o apksigner.jar https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar
+        # Download URLs dynamically injected with env versions
+        curl -L -o apktool.jar "https://github.com/iBotPeaches/Apktool/releases/download/v${{ env.APKTOOL_VERSION }}/apktool_${{ env.APKTOOL_VERSION }}.jar"
+        curl -L -o apksigner.jar "https://github.com/patrickfav/uber-apk-signer/releases/download/v${{ env.APKSIGNER_VERSION }}/uber-apk-signer-${{ env.APKSIGNER_VERSION }}.jar"
 
     - name: Build Native Images
+      if: steps.cache-native-images.outputs.cache-hit != 'true'
       run: |
         native-image -jar apktool.jar native/apktool
         native-image -jar apksigner.jar native/apksigner
@@ -83,7 +97,7 @@ jobs:
             shutil.copy2(s, d)
         
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: Kaizosoft-${{ matrix.runtime }}
         path: ./publish/${{ matrix.runtime }}
@@ -99,7 +113,7 @@ jobs:
     
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: artifacts
 
@@ -115,7 +129,7 @@ jobs:
                 shutil.make_archive(dir_path, 'zip', dir_path)
     
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
         files: |
           artifacts/Kaizosoft-win-x64/Kaizosoft-win-x64.zip

@@ -27,7 +27,7 @@ public static class ConsoleInteractive
             optional: false,
             reloadOnChange: true).Build();
 
-        Configuration.ApkSigner = config.GetSection("ApkSigner").Get<ApkSignerConfiguration>();
+        Configuration.ApkSigner = config.GetSection("ApkSigner").Get<ApkSignerConfiguration>()!;
         Configuration.TranslationSuffix = config.GetValue<string?>("TranslationSuffix", null);
 
         string? defaultLanguage = config.GetValue<string?>("DefaultLanguage", null);
