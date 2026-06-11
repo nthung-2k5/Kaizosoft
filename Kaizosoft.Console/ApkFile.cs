@@ -10,11 +10,9 @@ public static class ApkFile
 
         process.StartInfo = new ProcessStartInfo
         {
-            FileName = "java.exe",
+            FileName = Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
             ArgumentList =
             {
-                "-jar",
-                Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
                 "d",
                 apkFilePath,
                 "-f",
@@ -41,11 +39,9 @@ public static class ApkFile
         {
             process.StartInfo = new ProcessStartInfo
             {
-                FileName = "java.exe",
+                FileName = Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
                 ArgumentList =
                 {
-                    "-jar",
-                    Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
                     "b",
                     sourceDirectory,
                     "-o",
@@ -67,11 +63,9 @@ public static class ApkFile
         {
             process.StartInfo = new ProcessStartInfo
             {
-                FileName = "java.exe",
+                FileName = Path.Combine(AppContext.BaseDirectory, "apksigner.jar"),
                 ArgumentList =
                 {
-                    "-jar",
-                    Path.Combine(AppContext.BaseDirectory, "apksigner.jar"),
                     "--ks",
                     Path.Combine(AppContext.BaseDirectory, Configuration.ApkSigner.KeystorePath),
                     "--ksPass",
