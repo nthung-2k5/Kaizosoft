@@ -10,7 +10,7 @@ public static class ApkFile
 
         process.StartInfo = new ProcessStartInfo
         {
-            FileName = Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
+            FileName = Path.Combine(AppContext.BaseDirectory, "apktool"),
             ArgumentList =
             {
                 "d",
@@ -39,7 +39,7 @@ public static class ApkFile
         {
             process.StartInfo = new ProcessStartInfo
             {
-                FileName = Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
+                FileName = Path.Combine(AppContext.BaseDirectory, "apktool"),
                 ArgumentList =
                 {
                     "b",
@@ -63,7 +63,7 @@ public static class ApkFile
         {
             process.StartInfo = new ProcessStartInfo
             {
-                FileName = Path.Combine(AppContext.BaseDirectory, "apksigner.jar"),
+                FileName = Path.Combine(AppContext.BaseDirectory, "apksigner"),
                 ArgumentList =
                 {
                     "--ks",
