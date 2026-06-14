@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Update="keys.csv">
+      <None Update="../keys.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="classdata.tpk">
