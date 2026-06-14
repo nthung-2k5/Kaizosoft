@@ -119,7 +119,7 @@ public static class ApkFile
                 ArgumentList =
                 {
                     "-jar",
-                    Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
+                    Path.Combine(AppContext.BaseDirectory, "apksigner.jar"),
                     "--ks",
                     Path.Combine(AppContext.BaseDirectory, Configuration.Android!.KeystorePath),
                     "--ksPass",
