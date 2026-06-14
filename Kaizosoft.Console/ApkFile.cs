@@ -20,30 +20,32 @@ public static class ApkFile
             };
 
             using var process = Process.Start(psi);
-            
+
             process!.WaitForExit();
             // If it successfully ran, Java is present on the PATH environment
         }
         catch (Exception)
         {
             // Thrown if the 'java' executable could not be found
-            throw new Exception("Java is not installed or not found in PATH. Please install Java and ensure it's added to your system's PATH environment variable. You can download Java from https://adoptium.net/temurin/releases.");
+            throw new Exception(
+                "Java is not installed or not found in PATH. Please install Java and ensure it's added to your system's PATH environment variable. You can download Java from https://adoptium.net/temurin/releases.");
         }
-        
+
         // Check if apktool.jar and apksigner.jar exists
         if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "apktool.jar")))
         {
             throw new FileNotFoundException("apktool.jar not found");
         }
-        
+
         if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "apksigner.jar")))
         {
             throw new FileNotFoundException("apksigner.jar not found");
         }
-        
+
         if (Configuration.Android == null)
         {
-            throw new Exception("Android configuration is not set. Please provide the necessary keystore information in the configuration.");
+            throw new Exception(
+                "Android configuration is not set. Please provide the necessary keystore information in the configuration.");
         }
 
         if (!File.Exists(Path.Combine(AppContext.BaseDirectory, Configuration.Android.KeystorePath)))

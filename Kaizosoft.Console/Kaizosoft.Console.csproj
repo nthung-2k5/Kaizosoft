@@ -36,18 +36,7 @@
         <None Update="config.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="Assets\apksigner.jar">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>apksigner.jar</Link>
-        </None>
-        <None Update="Assets\apktool.jar">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>apktool.jar</Link>
-        </None>
-        <None Include="Assets\keys.csv">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>keys.csv</Link>
-        </None>
+        <Content Include="Assets\**" Link="%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

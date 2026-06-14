@@ -20,8 +20,6 @@ public static class ConsoleInteractive
 
     static ConsoleInteractive()
     {
-        System.Console.OutputEncoding = System.Text.Encoding.UTF8;
-
         var config = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory)
                 .AddYamlFile("config.yaml", optional: false).AddJsonFile("config.json", optional: true).Build();
 
@@ -40,12 +38,6 @@ public static class ConsoleInteractive
 
     public static void Run()
     {
-        AnsiConsole.MarkupLine("[bold blue]Kaizosoft Game Translation Tool[/]");
-        AnsiConsole.WriteLine();
-
-        Directory.CreateDirectory(INPUT_DIRECTORY);
-        Directory.CreateDirectory(OUTPUT_DIRECTORY);
-
         KairosoftGame? game = null;
 
         try
@@ -162,9 +154,6 @@ public static class ConsoleInteractive
             }
         }
         finally { game?.Dispose(); }
-
-        AnsiConsole.Write("Press any key to close...");
-        AnsiConsole.Console.Input.ReadKey(false);
     }
 
     public enum GamePlatform
