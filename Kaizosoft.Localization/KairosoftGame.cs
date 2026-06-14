@@ -3,9 +3,9 @@ using System.Text;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using Kaizosoft.Core.Interfaces;
-using Kaizosoft.Core.Services;
+using Kaizosoft.Localization.Services;
 
-namespace Kaizosoft.Core;
+namespace Kaizosoft.Localization;
 
 /// <summary>
 /// Represents a Kairosoft game and provides operations for managing language files.

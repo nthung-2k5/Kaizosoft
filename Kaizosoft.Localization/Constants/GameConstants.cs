@@ -1,4 +1,4 @@
-﻿namespace Kaizosoft.Core.Constants;
+﻿namespace Kaizosoft.Localization.Constants;
 
 /// <summary>
 /// Contains constant values used throughout the Kaizosoft game asset management system.

@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using Kaizosoft.Core.Constants;
+using Kaizosoft.Localization.Constants;
 using nietras.SeparatedValues;
 
-namespace Kaizosoft.Core;
+namespace Kaizosoft.Localization;
 
 /// <summary>
 /// Represents a Kairosoft language file with all its metadata and translation entries.

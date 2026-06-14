@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using Kaizosoft.Core.Constants;
+using Kaizosoft.Localization.Constants;
 
-namespace Kaizosoft.Core.Helpers;
+namespace Kaizosoft.Localization.Helpers;
 
 /// <summary>
 /// Service for parsing Kairosoft language files.

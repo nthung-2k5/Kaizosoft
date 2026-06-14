@@ -9,14 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Sep" Version="0.12.2"/>
+      <ProjectReference Include="..\Kaizosoft.Core\Kaizosoft.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Assets\classdata.tpk">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <Link>classdata.tpk</Link>
-        </Content>
+      <PackageReference Include="AssetsTools.NET" Version="3.0.4" />
     </ItemGroup>
 
 </Project>

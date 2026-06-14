@@ -1,7 +1,7 @@
 ﻿using System.CommandLine;
 using System.Globalization;
-using Kaizosoft.Core;
-using Kaizosoft.Core.Helpers;
+using Kaizosoft.Localization;
+using Kaizosoft.Localization.Helpers;
 using nietras.SeparatedValues;
 
 namespace Kaizosoft.Console;

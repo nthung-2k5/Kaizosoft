@@ -1,9 +1,8 @@
 ﻿using Kaizosoft.Core.Factories;
 using Kaizosoft.Core.Interfaces;
 using Kaizosoft.Core.Repositories;
-using Kaizosoft.Core.Services;
 
-namespace Kaizosoft.Core;
+namespace Kaizosoft.Localization;
 
 /// <summary>
 /// Composition root for dependency injection setup.

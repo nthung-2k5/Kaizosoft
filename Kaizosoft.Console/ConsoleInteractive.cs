@@ -2,8 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO.Compression;
-using Kaizosoft.Core;
-using Kaizosoft.Core.Helpers;
+using Kaizosoft.Localization;
+using Kaizosoft.Localization.Helpers;
 using Microsoft.Extensions.Configuration;
 using nietras.SeparatedValues;
 using Spectre.Console;

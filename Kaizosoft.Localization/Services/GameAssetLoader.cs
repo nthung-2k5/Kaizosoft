@@ -1,11 +1,12 @@
 ﻿using System.Text;
 using AssetsTools.NET;
 using AssetsTools.NET.Extra;
-using Kaizosoft.Core.Constants;
-using Kaizosoft.Core.Helpers;
+using Kaizosoft.Core;
 using Kaizosoft.Core.Interfaces;
+using Kaizosoft.Localization.Constants;
+using Kaizosoft.Localization.Helpers;
 
-namespace Kaizosoft.Core.Services;
+namespace Kaizosoft.Localization.Services;
 
 /// <summary>
 /// Service responsible for loading game assets from Unity asset bundles.

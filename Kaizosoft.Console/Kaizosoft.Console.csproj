@@ -21,6 +21,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Kaizosoft.Core\Kaizosoft.Core.csproj"/>
+        <ProjectReference Include="..\Kaizosoft.Localization\Kaizosoft.Localization.csproj" />
     </ItemGroup>
 
     <ItemGroup>

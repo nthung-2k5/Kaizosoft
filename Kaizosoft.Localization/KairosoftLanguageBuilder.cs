@@ -1,6 +1,6 @@
-﻿using Kaizosoft.Core.Constants;
+﻿using Kaizosoft.Localization.Constants;
 
-namespace Kaizosoft.Core;
+namespace Kaizosoft.Localization;
 
 /// <summary>
 /// Builder class for creating KairosoftLanguage instances following the Builder pattern.
