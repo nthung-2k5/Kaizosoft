@@ -25,84 +25,50 @@ jobs:
     runs-on: ${{ matrix.os }}
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: '10.0.x'
-        
-    - name: Cache Native Images
-      id: cache-native-images
-      uses: actions/cache@v5
-      with:
-        path: native
-        key: native-image-${{ runner.os }}-apktool-${{ env.APKTOOL_VERSION }}-apksigner-${{ env.APKSIGNER_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-    - name: Setup GraalVM
-      if: steps.cache-native-images.outputs.cache-hit != 'true'
-      uses: graalvm/setup-graalvm@v1
-      with:
-        java-version: '25'
-        distribution: 'graalvm'
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Download Apktool and Uber-APK-Signer
-      if: steps.cache-native-images.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        mkdir -p native
-        # Download URLs dynamically injected with env versions
-        curl -L -o apktool.jar "https://github.com/iBotPeaches/Apktool/releases/download/v${{ env.APKTOOL_VERSION }}/apktool_${{ env.APKTOOL_VERSION }}.jar"
-        curl -L -o apksigner.jar "https://github.com/patrickfav/uber-apk-signer/releases/download/v${{ env.APKSIGNER_VERSION }}/uber-apk-signer-${{ env.APKSIGNER_VERSION }}.jar"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
 
-    - name: Build Native Images
-      if: steps.cache-native-images.outputs.cache-hit != 'true'
-      run: |
-        native-image -jar apktool.jar native/apktool
-        native-image -jar apksigner.jar native/apksigner
-        
-    - name: Download Unity classdata
-      shell: bash
-      run: curl -L -o classdata.zip https://nightly.link/AssetRipper/Tpk/workflows/type_tree_tpk/master/uncompressed_file.zip
-        
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Download Apktool and Uber-APK-Signer
+        shell: bash
+        run: |
+          # Download URLs dynamically injected with env versions
+          curl -L -o Kaizosoft.Console/Assets/apktool.jar "https://github.com/iBotPeaches/Apktool/releases/download/v${{ env.APKTOOL_VERSION }}/apktool_${{ env.APKTOOL_VERSION }}.jar"
+          curl -L -o Kaizosoft.Console/Assets/apksigner.jar "https://github.com/patrickfav/uber-apk-signer/releases/download/v${{ env.APKSIGNER_VERSION }}/uber-apk-signer-${{ env.APKSIGNER_VERSION }}.jar"
 
-    - name: Publish ${{ matrix.runtime }}
-      run: |
-        dotnet publish Kaizosoft.Console/Kaizosoft.Console.csproj -c Release -r ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o ./publish/${{ matrix.runtime }}
+      - name: Download Unity classdata
+        shell: bash
+        run: curl -L -o classdata.zip https://nightly.link/AssetRipper/Tpk/workflows/type_tree_tpk/master/uncompressed_file.zip
 
-    - name: Copy required files to output
-      shell: python
-      run: |
-        import os
-        import shutil
-        import zipfile
-        import io
-        
-        dest = './publish/${{ matrix.runtime }}'
-        shutil.copy('keys.csv', dest)
-        
-        with zipfile.ZipFile('classdata.zip') as z:
-          with z.open('uncompressed.tpk') as source, open(os.path.join(dest, 'classdata.tpk'), 'wb') as target:
-              shutil.copyfileobj(source, target)
-        
-        for item in os.listdir('native'):
-          s = os.path.join('native', item)
-          d = os.path.join(dest, item)
-          if os.path.isdir(s):
-            shutil.copytree(s, d, dirs_exist_ok=True)
-          else:
-            shutil.copy2(s, d)
-        
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v7
-      with:
-        name: Kaizosoft-${{ matrix.runtime }}
-        path: ./publish/${{ matrix.runtime }}
-        compression-level: 9
+      - name: Uncompress classdata
+        shell: python
+        run: |
+          import os
+          import shutil
+          import zipfile
+          import io
+          
+          with zipfile.ZipFile('classdata.zip') as z:
+            with z.open('uncompressed.tpk') as source, open('Kaizosoft.Core/Assets/classdata.tpk', 'wb') as target:
+                shutil.copyfileobj(source, target)
+          
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Publish ${{ matrix.runtime }}
+        run: |
+          dotnet publish Kaizosoft.Console/Kaizosoft.Console.csproj -c Release -r ${{ matrix.runtime }} --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o ./publish/${{ matrix.runtime }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Kaizosoft-${{ matrix.runtime }}
+          path: ./publish/${{ matrix.runtime }}
+          compression-level: 9
   
   release:
     needs: build
@@ -113,31 +79,31 @@ jobs:
       contents: write
     
     steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v8
-      with:
-        path: artifacts
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
 
-    - name: Zip artifacts for Release
-      shell: python
-      run: |
-        import os
-        import shutil
-        
-        for item in os.listdir('artifacts'):
-            dir_path = os.path.join('artifacts', item)
-            if os.path.isdir(dir_path):
-                shutil.make_archive(dir_path, 'zip', dir_path)
-    
-    - name: Create Release
-      uses: softprops/action-gh-release@v3
-      with:
-        files: |
-          artifacts/Kaizosoft-win-x64/Kaizosoft-win-x64.zip
-          artifacts/Kaizosoft-linux-x64/Kaizosoft-linux-x64.zip
-          artifacts/Kaizosoft-osx-x64/Kaizosoft-osx-x64.zip
-        draft: false
-        prerelease: false
-        generate_release_notes: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Zip artifacts for Release
+        shell: python
+        run: |
+          import os
+          import shutil
+          
+          for item in os.listdir('artifacts'):
+              dir_path = os.path.join('artifacts', item)
+              if os.path.isdir(dir_path):
+                  shutil.make_archive(dir_path, 'zip', dir_path)
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            artifacts/Kaizosoft-win-x64/Kaizosoft-win-x64.zip
+            artifacts/Kaizosoft-linux-x64/Kaizosoft-linux-x64.zip
+            artifacts/Kaizosoft-osx-x64/Kaizosoft-osx-x64.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
