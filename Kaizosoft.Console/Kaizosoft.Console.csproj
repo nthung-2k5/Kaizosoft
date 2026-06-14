@@ -36,7 +36,7 @@
         <None Update="config.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <Content Include="Assets\**" Link="%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Assets\**" Link="%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>
