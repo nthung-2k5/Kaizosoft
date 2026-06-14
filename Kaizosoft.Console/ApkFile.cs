@@ -4,15 +4,65 @@ namespace Kaizosoft.Console;
 
 public static class ApkFile
 {
+    public static void AssertAndroidIsConfigured()
+    {
+        // Check if java exists
+        try
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "java",
+                Arguments = "-version",
+                RedirectStandardError = true, // Java outputs version info to stderr
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = Process.Start(psi);
+            
+            process!.WaitForExit();
+            // If it successfully ran, Java is present on the PATH environment
+        }
+        catch (Exception)
+        {
+            // Thrown if the 'java' executable could not be found
+            throw new Exception("Java is not installed or not found in PATH. Please install Java and ensure it's added to your system's PATH environment variable. You can download Java from https://adoptium.net/temurin/releases.");
+        }
+        
+        // Check if apktool.jar and apksigner.jar exists
+        if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "apktool.jar")))
+        {
+            throw new FileNotFoundException("apktool.jar not found");
+        }
+        
+        if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "apksigner.jar")))
+        {
+            throw new FileNotFoundException("apksigner.jar not found");
+        }
+        
+        if (Configuration.Android == null)
+        {
+            throw new Exception("Android configuration is not set. Please provide the necessary keystore information in the configuration.");
+        }
+
+        if (!File.Exists(Path.Combine(AppContext.BaseDirectory, Configuration.Android.KeystorePath)))
+        {
+            throw new FileNotFoundException("Keystore not found");
+        }
+    }
+
     public static bool ExtractDirectory(string apkFilePath, string destinationDirectory)
     {
         using var process = new Process();
 
         process.StartInfo = new ProcessStartInfo
         {
-            FileName = Path.Combine(AppContext.BaseDirectory, "apktool"),
+            FileName = "java",
             ArgumentList =
             {
+                "-jar",
+                Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
                 "d",
                 apkFilePath,
                 "-f",
@@ -39,9 +89,11 @@ public static class ApkFile
         {
             process.StartInfo = new ProcessStartInfo
             {
-                FileName = Path.Combine(AppContext.BaseDirectory, "apktool"),
+                FileName = "java",
                 ArgumentList =
                 {
+                    "-jar",
+                    Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
                     "b",
                     sourceDirectory,
                     "-o",
@@ -63,17 +115,19 @@ public static class ApkFile
         {
             process.StartInfo = new ProcessStartInfo
             {
-                FileName = Path.Combine(AppContext.BaseDirectory, "apksigner"),
+                FileName = "java",
                 ArgumentList =
                 {
+                    "-jar",
+                    Path.Combine(AppContext.BaseDirectory, "apktool.jar"),
                     "--ks",
-                    Path.Combine(AppContext.BaseDirectory, Configuration.ApkSigner.KeystorePath),
+                    Path.Combine(AppContext.BaseDirectory, Configuration.Android!.KeystorePath),
                     "--ksPass",
-                    Configuration.ApkSigner.KeystorePassword,
+                    Configuration.Android.KeystorePassword,
                     "--ksAlias",
-                    Configuration.ApkSigner.KeyAlias,
+                    Configuration.Android.KeyAlias,
                     "--ksKeyPass",
-                    Configuration.ApkSigner.KeyPassword,
+                    Configuration.Android.KeyPassword,
                     "-a",
                     apkPath,
                     "--overwrite"

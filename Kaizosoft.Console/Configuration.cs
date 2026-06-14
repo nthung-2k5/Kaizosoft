@@ -3,27 +3,19 @@
 namespace Kaizosoft.Console;
 
 /// <summary>
-/// Global configuration holder for the application.
+/// Configuration for the application.
 /// </summary>
 public static class Configuration
 {
-    /// <summary>
-    /// The APK signer configuration.
-    /// </summary>
-    public static ApkSignerConfiguration ApkSigner { get; set; } = null!;
+    public static AndroidConfiguration? Android { get; set; }
 
-    public static string? TranslationSuffix { get; set; }
-
-    /// <summary>
-    /// The default culture for translations.
-    /// </summary>
-    public static CultureInfo? DefaultCulture { get; set; }
+    public static TranslationConfiguration? Translation { get; set; }
 }
 
 /// <summary>
-/// Configuration settings for APK signing.
+/// Configuration settings for Android.
 /// </summary>
-public class ApkSignerConfiguration
+public class AndroidConfiguration
 {
     /// <summary>
     /// The path to the keystore file.
@@ -44,4 +36,20 @@ public class ApkSignerConfiguration
     /// The key password.
     /// </summary>
     public string KeyPassword { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Configuration settings for translation handling.
+/// </summary>
+public class TranslationConfiguration
+{
+    /// <summary>
+    /// The suffix to append to translation files (e.g., ".translated").
+    /// </summary>
+    public string? TranslationSuffix { get; set; }
+
+    /// <summary>
+    /// The default language for translations.
+    /// </summary>
+    public CultureInfo? DefaultLanguage { get; set; }
 }

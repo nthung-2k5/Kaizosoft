@@ -1,0 +1,25 @@
+﻿# This is the configuration file for the Kaizosoft.Console application.
+
+# You can safely ignore this if you are not interacting with Android variants of Kairosoft game.
+# android:
+  # The path to the keystore file, relative to the current directory.
+  # keystorePath: "keystore.jks"
+  
+  # The keystore password.
+  # keystorePassword: "your_keystore_password"
+  
+  # The key alias.
+  # keyAlias: "your_key_alias"
+  
+  # The key password.
+  # keyPassword: "your_key_password"
+
+
+# translation:
+  # The suffix for the resulting executable file name.
+  # For example, if the suffix is "_en", the output file will be named "MyApp_en.exe".
+  # suffix:
+  
+  # The default culture for translations (used when no specific culture is provided).
+  # The culture must be a ISO 639-1 two-letter or ISO 639-3 three-letter code.
+  # defaultLanguage: "vi"

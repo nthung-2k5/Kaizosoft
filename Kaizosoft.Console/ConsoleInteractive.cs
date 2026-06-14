@@ -22,20 +22,11 @@ public static class ConsoleInteractive
     {
         System.Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        var config = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory).AddJsonFile(
-            "appsettings.json",
-            optional: false,
-            reloadOnChange: true).Build();
+        var config = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory)
+                .AddYamlFile("config.yaml", optional: false).AddJsonFile("config.json", optional: true).Build();
 
-        Configuration.ApkSigner = config.GetSection("ApkSigner").Get<ApkSignerConfiguration>()!;
-        Configuration.TranslationSuffix = config.GetValue<string?>("TranslationSuffix", null);
-
-        string? defaultLanguage = config.GetValue<string?>("DefaultLanguage", null);
-
-        if (!string.IsNullOrWhiteSpace(defaultLanguage))
-        {
-            Configuration.DefaultCulture = CultureInfo.GetCultureInfo(defaultLanguage);
-        }
+        Configuration.Android = config.GetSection("Android").Get<AndroidConfiguration>();
+        Configuration.Translation = config.GetSection("Translation").Get<TranslationConfiguration>();
 
         AppDomain.CurrentDomain.ProcessExit += (_, _) =>
         {
@@ -87,9 +78,9 @@ public static class ConsoleInteractive
 
                     if (fileNameParts.Length < 2)
                     {
-                        if (Configuration.DefaultCulture != null)
+                        if (Configuration.Translation?.DefaultLanguage != null)
                         {
-                            language = Configuration.DefaultCulture.TwoLetterISOLanguageName;
+                            language = Configuration.Translation.DefaultLanguage.TwoLetterISOLanguageName;
                             AnsiConsole.MarkupLine(
                                 $"[yellow]:warning: No language code found in file name. Using default language code from configuration: {language}[/]");
                         }
@@ -101,7 +92,7 @@ public static class ConsoleInteractive
 
                         if (string.IsNullOrWhiteSpace(language))
                         {
-                            AnsiConsole.MarkupLine("[red]:x: No language code provided. Aborting.[/]");
+                            AnsiConsole.MarkupLine("[red]:cross_mark: No language code provided. Aborting.[/]");
                             return;
                         }
                     }
@@ -112,11 +103,11 @@ public static class ConsoleInteractive
                 catch (CultureNotFoundException ex)
                 {
                     AnsiConsole.MarkupLine(
-                        $"[red]:x: Invalid language code detected: {ex.InvalidCultureName}. Aborting.[/]");
+                        $"[red]:cross_mark: Invalid language code detected: {ex.InvalidCultureName}. Aborting.[/]");
                     return;
                 }
 
-                if (Configuration.DefaultCulture == null)
+                if (Configuration.Translation?.DefaultLanguage == null)
                 {
                     AnsiConsole.MarkupLine(
                         $"[green]:check_mark: Detected language code: {culture.TwoLetterISOLanguageName} ({culture.NativeName})[/]");
@@ -140,13 +131,13 @@ public static class ConsoleInteractive
 
                 try
                 {
-                    string language = AnsiConsole.Ask(
+                    string? language = AnsiConsole.Ask(
                         "Enter the ISO language code to the language file (e.g., 'vi' for Vietnamese). Press Enter to use default language",
-                        defaultValue: Configuration.DefaultCulture?.TwoLetterISOLanguageName!);
+                        defaultValue: Configuration.Translation?.DefaultLanguage?.TwoLetterISOLanguageName);
 
                     if (string.IsNullOrWhiteSpace(language))
                     {
-                        AnsiConsole.MarkupLine("[red]:x: No language code provided. Aborting.[/]");
+                        AnsiConsole.MarkupLine("[red]:cross_mark: No language code provided. Aborting.[/]");
                         return;
                     }
 
@@ -155,7 +146,7 @@ public static class ConsoleInteractive
                 catch (CultureNotFoundException ex)
                 {
                     AnsiConsole.MarkupLine(
-                        $"[red]:x: Invalid language code detected: {ex.InvalidCultureName}. Aborting.[/]");
+                        $"[red]:cross_mark: Invalid language code detected: {ex.InvalidCultureName}. Aborting.[/]");
                     return;
                 }
 
@@ -171,6 +162,9 @@ public static class ConsoleInteractive
             }
         }
         finally { game?.Dispose(); }
+
+        AnsiConsole.Write("Press any key to close...");
+        AnsiConsole.Console.Input.ReadKey(false);
     }
 
     public enum GamePlatform
@@ -202,7 +196,7 @@ public static class ConsoleInteractive
                 break;
             default:
                 AnsiConsole.MarkupLine(
-                    "[red]:x: No game files found in input directory. Please add a .zip or .apk file to proceed.[/]");
+                    "[red]:cross_mark: No game files found in input directory. Please add a .zip or .apk file to proceed.[/]");
                 break;
         }
 
@@ -235,6 +229,15 @@ public static class ConsoleInteractive
     {
         if (archiveFile.Extension.Equals(".apk", StringComparison.OrdinalIgnoreCase))
         {
+            try { ApkFile.AssertAndroidIsConfigured(); }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine(
+                    $"[red]:cross_mark: Android extraction dependencies not properly configured: {ex.Message}[/]");
+                extractionDir = null;
+                return false;
+            }
+
             AnsiConsole.MarkupLine("Detected APK file. Extracting using apktool...");
         }
         else
@@ -263,7 +266,7 @@ public static class ConsoleInteractive
 
         if (!ok)
         {
-            AnsiConsole.MarkupLine("[red]:x: Failed to extract game archive.[/]");
+            AnsiConsole.MarkupLine("[red]:cross_mark: Failed to extract game archive.[/]");
             extractionDir = null;
             return false;
         }
@@ -307,7 +310,7 @@ public static class ConsoleInteractive
         }
         catch (Exception ex)
         {
-            AnsiConsole.MarkupLine($"[red]:x: Failed to load game from extracted files: {ex.Message}[/]");
+            AnsiConsole.MarkupLine($"[red]:cross_mark: Failed to load game from extracted files: {ex.Message}[/]");
 
             game = null;
             return false;
@@ -348,22 +351,24 @@ public static class ConsoleInteractive
             "Repacking game archive...",
             ctx =>
             {
+                string outputFilename = Path.GetFileNameWithoutExtension(originalGameInfo.Name);
+
+                if (Configuration.Translation?.TranslationSuffix != null)
+                {
+                    outputFilename += Configuration.Translation.TranslationSuffix;
+                }
+
                 if (platform == GamePlatform.Android)
                 {
                     ctx.Status("Repacking APK using apktool and apksigner...");
 
-                    string outputApkPath = Path.Combine(
-                        OUTPUT_DIRECTORY,
-                        Path.GetFileNameWithoutExtension(originalGameInfo.Name) + Configuration.TranslationSuffix +
-                        ".apk");
+                    string outputApkPath = Path.Combine(OUTPUT_DIRECTORY, outputFilename + ".apk");
                     return ApkFile.BuildApk(extractionDir.FullName, outputApkPath) ? new FileInfo(outputApkPath) : null;
                 }
 
                 ctx.Status("Repacking ZIP using built-in ZIP compressor...");
 
-                string outputZipPath = Path.Combine(
-                    OUTPUT_DIRECTORY,
-                    Path.GetFileNameWithoutExtension(originalGameInfo.Name) + Configuration.TranslationSuffix + ".zip");
+                string outputZipPath = Path.Combine(OUTPUT_DIRECTORY, outputFilename + ".zip");
 
                 if (File.Exists(outputZipPath)) { File.Delete(outputZipPath); }
 
@@ -374,7 +379,7 @@ public static class ConsoleInteractive
 
         if (repackedFile == null)
         {
-            AnsiConsole.MarkupLine("[red]:x: Failed to repackage game archive.[/]");
+            AnsiConsole.MarkupLine("[red]:cross_mark: Failed to repackage game archive.[/]");
             return false;
         }
 
