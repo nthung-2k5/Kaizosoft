@@ -28,7 +28,7 @@ public static class ApkFile
         {
             // Thrown if the 'java' executable could not be found
             throw new Exception(
-                "Java is not installed or not found in PATH. Please install Java and ensure it's added to your system's PATH environment variable. You can download Java from https://adoptium.net/temurin/releases.");
+                "Java is not installed or not found in PATH. Please install Java and ensure it's added to your system's PATH environment variable. You can download Java from https://adoptium.net/temurin/releases and choose JRE variant.");
         }
 
         // Check if apktool.jar and apksigner.jar exists
