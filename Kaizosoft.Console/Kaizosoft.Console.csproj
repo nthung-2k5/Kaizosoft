@@ -9,11 +9,14 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(PublishProtocol)' != '' or '$(DeployTarget)' != ''">
+        <Configuration>Release</Configuration>
         <PublishAot>true</PublishAot>
+        <PublishReadyToRun>true</PublishReadyToRun>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <PublishTrimmed>true</PublishTrimmed>
+        <DebugSymbols>false</DebugSymbols>
     </PropertyGroup>
 
     <ItemGroup>
