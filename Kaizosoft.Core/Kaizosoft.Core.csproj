@@ -8,17 +8,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Update="../keys.csv">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="classdata.tpk">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <Content Include="../keys.csv">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    
+    <ItemGroup Condition="Exists('../classdata.tpk')">
+        <Content Include="../classdata.tpk">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="AssetsTools.NET" Version="3.0.3" />
-      <PackageReference Include="Sep" Version="0.12.2" />
+        <PackageReference Include="AssetsTools.NET" Version="3.0.3"/>
+        <PackageReference Include="Sep" Version="0.12.2"/>
     </ItemGroup>
 
 </Project>
